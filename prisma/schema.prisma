@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  telegramId    BigInt    @unique
+  username      String?
+  walletAddress String?
+  walletType    String?
+  connectedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Order         Order[]
+  Trade         Trade[]
+
+  @@index([telegramId])
+}
+
+model MarketStats {
+  id              Int       @id @default(autoincrement())
+  pair            String    @unique
+  volume24h       Float     @default(0)
+  tradeCount24h   Int       @default(0)
+  lastTradePrice  Float?
+  lastTradeTime   DateTime?
+  highPrice24h    Float?
+  lowPrice24h     Float?
+  liquidityDepth  Float     @default(0)
+  openOrdersCount Int       @default(0)
+  updatedAt       DateTime  @updatedAt
+
+  @@index([pair])
+  @@index([updatedAt])
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  userId          Int
+  orderAddress    String      @unique
+  pair            String
+  side            OrderSide
+  orderType       OrderType
+  amount          Float
+  price           Float?
+  filledAmount    Float       @default(0)
+  status          OrderStatus @default(OPEN)
+  transactionHash String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime
+  User            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Trade           Trade[]
+
+  @@index([createdAt])
+  @@index([orderAddress])
+  @@index([pair])
+  @@index([status])
+  @@index([userId])
+}
+
+model Trade {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  orderAddress    String?
+  pair            String
+  side            OrderSide
+  amount          Float
+  price           Float
+  fee             Float     @default(0)
+  transactionHash String?
+  executedAt      DateTime  @default(now())
+  Order           Order?    @relation(fields: [orderAddress], references: [orderAddress])
+  User            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([executedAt])
+  @@index([orderAddress])
+  @@index([pair])
+  @@index([userId])
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderStatus {
+  OPEN
+  PARTIAL
+  FILLED
+  CANCELLED
+}
+
+enum OrderType {
+  LIMIT
+  MARKET
+}
