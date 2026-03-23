@@ -77,18 +77,25 @@ jobs:
 
     steps:
       - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          DEPLOY_OWNER: ${{ github.repository_owner }}
+          DEPLOY_REPO: ${{ github.event.repository.name }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          DEPLOY_GHCR_USER: ${{ secrets.GHCR_USERNAME }}
+          DEPLOY_GHCR_PASS: ${{ secrets.GHCR_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
+          envs: DEPLOY_OWNER,DEPLOY_REPO,DEPLOY_BRANCH,DEPLOY_GHCR_USER,DEPLOY_GHCR_PASS
           script: |
             set -e
 
-            OWNER="${{ env.OWNER }}"
-            REPO="${{ env.REPO }}"
-            BRANCH="${{ env.BRANCH }}"
+            OWNER="${DEPLOY_OWNER}"
+            REPO="${DEPLOY_REPO}"
+            BRANCH="${DEPLOY_BRANCH}"
             IMAGE="ghcr.io/${OWNER}/${REPO}"
             IMAGE_TAG="${BRANCH}-latest"   # будем тянуть свежий тег ветки
 
@@ -108,10 +115,8 @@ jobs:
             echo "Will use image: ${IMAGE}:${IMAGE_TAG}"
 
             # Логин в GHCR (нужен если образы приватные). Иначе шаг пропустится.
-            GHCR_USER="${{ secrets.GHCR_USERNAME || '' }}"
-            GHCR_PASS="${{ secrets.GHCR_TOKEN || '' }}"
-            if [ -n "$GHCR_USER" ] && [ -n "$GHCR_PASS" ]; then
-              echo "$GHCR_PASS" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            if [ -n "$DEPLOY_GHCR_USER" ] && [ -n "$DEPLOY_GHCR_PASS" ]; then
+              echo "$DEPLOY_GHCR_PASS" | docker login ghcr.io -u "$DEPLOY_GHCR_USER" --password-stdin
             fi
 
             cd "$TARGET_DIR"
