@@ -523,6 +523,62 @@ What would you like to do? <i>(🔬 Beta)</i>`;
   await replyOrEdit(ctx, menuText, { parse_mode: 'HTML', ...keyboard });
 }
 
+export async function handleStats(ctx: Context) {
+  const SCANNER_BASE = 'https://scanner.jarvis-agent.workers.dev';
+
+  try {
+    const [statsRes, ordersRes] = await Promise.all([
+      fetch(`${SCANNER_BASE}/stats`),
+      fetch(`${SCANNER_BASE}/stats/orders`),
+    ]);
+
+    if (!statsRes.ok || !ordersRes.ok) throw new Error('API error');
+
+    const statsData = (await statsRes.json() as any).stats;
+    const ordersData = (await ordersRes.json() as any).stats;
+    if (!statsData || !ordersData) throw new Error('No stats in response');
+
+    const w = ordersData.windows || {};
+    const h1 = w['1h'] || {};
+    const h24 = w['24h'] || {};
+
+    const fmtInt = (n: any) => Number(n || 0).toLocaleString();
+
+    const message = `<b>📊 Order Book Stats</b>
+
+<b>Last 1 hour</b>
+Open: ${fmtInt(h1.open_orders)}  |  Completed: ${fmtInt(h1.completed_orders)}
+
+<b>Last 24 hours</b>
+Open: ${fmtInt(h24.open_orders)}  |  Completed: ${fmtInt(h24.completed_orders)}
+
+<b>All time</b>
+Total orders: ${fmtInt(statsData.orders_total)}
+Open: ${fmtInt(statsData.orders_open)}
+Filled: ${fmtInt(statsData.orders_filled)}
+Closed: ${fmtInt(statsData.orders_closed)}
+Matches: ${fmtInt(statsData.matches_count)}
+Vaults tracked: ${fmtInt(statsData.vaults_tracked)}`;
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('🔄 Refresh', 'stats_refresh')],
+      [Markup.button.callback('◀️ Back', 'main_menu')],
+    ]);
+
+    await replyOrEdit(ctx, message, { parse_mode: 'HTML', ...keyboard });
+  } catch (error) {
+    console.error('[stats command] Error:', error);
+    await replyOrEdit(
+      ctx,
+      'Failed to fetch stats. Please try again.',
+      Markup.inlineKeyboard([
+        [Markup.button.callback('🔄 Retry', 'stats_refresh')],
+        [Markup.button.callback('◀️ Back', 'main_menu')],
+      ])
+    );
+  }
+}
+
 export async function handleAbout(ctx: Context) {
   const aboutMessage = `<b>ℹ️ About</b>
 

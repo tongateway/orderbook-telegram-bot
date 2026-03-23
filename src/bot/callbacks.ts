@@ -15,6 +15,7 @@ import {
   showMainMenu,
   handleStart,
   handleAbout,
+  handleStats,
 } from './commands';
 import {
   generateWalletConnection,
@@ -800,6 +801,7 @@ export async function setupCallbacks(bot: any) {
   // Main menu callbacks
   bot.action('main_menu', showMainMenu);
   bot.action('about', handleAbout);
+  bot.action('stats_refresh', handleStats);
   bot.action('trade', handleTrade);
   bot.action('orders', async (ctx: Context) => {
     const telegramId = ctx.from?.id;

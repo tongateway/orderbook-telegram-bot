@@ -4,6 +4,7 @@ import {
   handleStart,
   handleDisconnect,
   handleVaults,
+  handleStats,
 } from './commands';
 import { setupCallbacks } from './callbacks';
 import { handleTextMessage } from './messages';
@@ -14,12 +15,14 @@ export function createBot(): Telegraf {
   // Set bot commands (visible in Telegram menu)
   bot.telegram.setMyCommands([
     { command: 'start', description: 'Main menu' },
+    { command: 'stats', description: 'Order book statistics' },
     { command: 'vaults', description: 'Show vault addresses' },
     { command: 'disconnect', description: 'Disconnect wallet' },
   ]);
 
   // Command handlers
   bot.command('start', handleStart);
+  bot.command('stats', handleStats);
   bot.command('vaults', handleVaults);
   bot.command('disconnect', handleDisconnect);
 
