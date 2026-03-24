@@ -15,7 +15,7 @@ const ORDERS_REFRESH_INTERVAL = 25 * 1000;
 const ORDERS_CACHE_TTL = 60;
 
 // Supported trading pairs to refresh
-const SUPPORTED_PAIRS = ['NOT/TON', 'NOT/USDT', 'BUILD/TON', 'BUILD/USDT', 'TON/DOGS', 'TON/PX', 'TON/XAUt'];
+const SUPPORTED_PAIRS = ['NOT/TON', 'NOT/USDT', 'BUILD/TON', 'BUILD/USDT', 'TON/DOGS', 'TON/PX', 'TON/XAUt', 'AGNT/TON', 'AGNT/NOT', 'AGNT/USDT'];
 
 let cronInterval: NodeJS.Timeout | null = null;
 

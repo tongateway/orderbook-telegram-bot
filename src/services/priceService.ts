@@ -11,6 +11,7 @@ import {
   PRICE_CONSTANTS,
 } from '../utils/tokenConstants';
 import { normalizeTokenSymbol } from '../utils/tokenSymbol';
+import { config } from '../utils/config';
 
 interface PriceData {
   [symbol: string]: number;
@@ -98,6 +99,13 @@ export async function getTokenPrices(): Promise<PriceData> {
     return fallbackPrices;
   }
 
+  // Fetch AGNT price from order book
+  const agntPrice = await fetchAgntPrice(prices);
+  if (agntPrice) {
+    prices.AGNT = agntPrice;
+    fallbackPrices.AGNT = agntPrice;
+  }
+
   // Cache the prices with longer TTL
   await setCached(cacheKey, prices, PRICE_CACHE_TTL);
 
@@ -173,6 +181,61 @@ export async function calculateMarketAmount(
 }
 
 /**
+ * Fetch AGNT price from Open4Dev order book API.
+ * Takes the average mid-price (in USD) across pairs that have orders on both sides.
+ */
+async function fetchAgntPrice(knownPrices: PriceData): Promise<number | null> {
+  try {
+    const res = await fetch(
+      `${config.open4devApiUrl}/coins/price?symbol=AGNT`,
+      {
+        headers: {
+          'X-Api-Key': config.open4devApiKey || '',
+          Accept: 'application/json',
+        },
+      }
+    );
+    if (!res.ok) return null;
+
+    const data = (await res.json()) as any;
+    const pairs: any[] = data?.pairs || [];
+    const coinDecimals = data?.coin?.decimals ?? 9;
+
+    let totalUsdPrice = 0;
+    let validPairs = 0;
+
+    for (const pair of pairs) {
+      // Skip pairs without orders on both sides
+      if (!pair.ask_order_count || !pair.bid_order_count) continue;
+      if (!pair.mid_price) continue;
+
+      const counterSymbol = normalizeTokenSymbol(pair.counter_coin_symbol);
+      const counterUsdPrice = knownPrices[counterSymbol];
+      if (!counterUsdPrice) continue;
+
+      const counterDecimals = pair.counter_coin_decimals ?? 9;
+
+      // mid_price is in 18-decimal fixed-point: how many counter units per 1 AGNT base unit
+      // Real price = mid_price / 10^18 * 10^coinDecimals / 10^counterDecimals
+      const midPrice = Number(pair.mid_price) / 1e18;
+      const adjustedRate = midPrice * Math.pow(10, coinDecimals) / Math.pow(10, counterDecimals);
+      const usdPrice = adjustedRate * counterUsdPrice;
+
+      if (usdPrice > 0 && isFinite(usdPrice)) {
+        totalUsdPrice += usdPrice;
+        validPairs++;
+      }
+    }
+
+    if (validPairs === 0) return null;
+    return totalUsdPrice / validPairs;
+  } catch (error) {
+    console.error('[PriceCache] Failed to fetch AGNT price:', error);
+    return null;
+  }
+}
+
+/**
  * Refresh price cache - called by CRON job
  * Forces a fresh fetch from CoinGecko and updates cache
  * Returns true on success, false on failure
@@ -226,6 +289,12 @@ export async function refreshPriceCache(): Promise<boolean> {
       if (data[id]?.usd) {
         prices[symbol] = data[id].usd;
       }
+    }
+
+    // Fetch AGNT price from order book
+    const agntPrice = await fetchAgntPrice(prices);
+    if (agntPrice) {
+      prices.AGNT = agntPrice;
     }
 
     // Update fallback prices

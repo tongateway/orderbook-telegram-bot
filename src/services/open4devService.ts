@@ -47,6 +47,7 @@ const COIN_DECIMALS_BY_ID: Record<number, number> = {
   1696227: getTokenDecimals('DOGS'),
   1696228: getTokenDecimals('PX'),
   1696229: getTokenDecimals('XAUT0'),
+  1696231: getTokenDecimals('AGNT'),
 };
 
 const DEFAULT_ORDER_DECIMALS = 9;

@@ -20,6 +20,7 @@ export const TOKEN_DECIMALS: Record<string, number> = {
   XAUT0: 6,
   USDT: 6,
   USDC: 6,
+  AGNT: 9,
 } as const;
 
 /**

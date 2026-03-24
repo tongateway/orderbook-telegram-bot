@@ -13,6 +13,7 @@ export const TOKEN_DECIMALS: Record<string, number> = {
   DOGS: 9,
   PX: 9,
   XAUT0: 6,
+  AGNT: 9,
 };
 
 export function getTokenDecimals(symbol: string): number {
@@ -31,6 +32,7 @@ export const TOKEN_EMOJI: Record<string, string> = {
   XAUT0: '🥇',
   USDT: '💵',
   USDC: '💵',
+  AGNT: '🤖',
 };
 
 export function getTokenEmoji(symbol: string): string {
@@ -57,7 +59,7 @@ export function getStatusEmoji(status: string): string {
 /**
  * Available tokens for trading
  */
-export const AVAILABLE_TOKENS = ['TON', 'NOT', 'USDT', 'BUILD', 'DOGS', 'PX', 'XAUt'];
+export const AVAILABLE_TOKENS = ['TON', 'NOT', 'USDT', 'BUILD', 'DOGS', 'PX', 'XAUt', 'AGNT'];
 
 /**
  * Supported trading pairs
@@ -71,6 +73,9 @@ export const SUPPORTED_PAIRS = [
   'TON/DOGS',
   'TON/PX',
   'TON/XAUt',
+  'AGNT/TON',
+  'AGNT/NOT',
+  'AGNT/USDT',
 ];
 
 export { formatTokenSymbol, normalizeTokenSymbol };
