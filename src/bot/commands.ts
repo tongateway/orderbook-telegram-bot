@@ -555,8 +555,7 @@ Open: ${fmtInt(h24.open_orders)}  |  Completed: ${fmtInt(h24.completed_orders)}
 <b>All time</b>
 Total orders: ${fmtInt(statsData.orders_total)}
 Open: ${fmtInt(statsData.orders_open)}
-Filled: ${fmtInt(statsData.orders_filled)}
-Closed: ${fmtInt(statsData.orders_closed)}
+Executed: ${fmtInt(statsData.orders_filled)}
 Matches: ${fmtInt(statsData.matches_count)}
 Vaults tracked: ${fmtInt(statsData.vaults_tracked)}`;
 
