@@ -2,6 +2,8 @@
 
 A Telegram bot that enables users to perform order book trading on the TON blockchain.
 
+**Try it:** [@tgw_dex_bot](https://t.me/tgw_dex_bot)
+
 ## Features (MVP)
 
 - Wallet connection via TON Connect
