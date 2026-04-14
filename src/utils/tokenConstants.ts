@@ -91,12 +91,12 @@ export const SLIPPAGE_CONSTANTS = {
 export const FEE_CONSTANTS = {
   /** Platform fee address */
   DEFAULT_PROVIDER_FEE_ADDRESS: 'UQAlC2mQuumiP1aQ_yMzp1mYUcG8h13Jc4cdmWAhBqaqme0t',
-  /** Platform fee numerator (100/10000 = 1%) */
-  DEFAULT_FEE_NUM: 100,
+  /** Platform fee numerator (20/10000 = 0.2%) */
+  DEFAULT_FEE_NUM: 20,
   /** Platform fee denominator */
   DEFAULT_FEE_DENOM: 10000,
-  /** Matcher fee numerator (200/10000 = 2%) */
-  DEFAULT_MATCHER_FEE_NUM: 200,
+  /** Matcher fee numerator (20/10000 = 0.2%) */
+  DEFAULT_MATCHER_FEE_NUM: 20,
   /** Matcher fee denominator */
   DEFAULT_MATCHER_FEE_DENOM: 10000,
 } as const;
